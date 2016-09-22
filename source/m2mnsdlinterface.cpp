@@ -376,7 +376,14 @@ uint8_t M2MNsdlInterface::received_from_server_callback(struct nsdl_s *nsdl_hand
                                                         sn_coap_hdr_s *coap_header,
                                                         sn_nsdl_addr_s *address)
 {
-    tr_debug("M2MNsdlInterface::received_from_server_callback - incoming msg id:%" PRIu16, coap_header->msg_id);
+    if (coap_header) {
+        tr_debug("M2MNsdlInterface::received_from_server_callback - incoming msg id:%" PRIu16, coap_header->msg_id);
+        tr_debug("M2MNsdlInterface::received_from_server_callback - incoming msg code:%d", coap_header->msg_code);
+        tr_debug("M2MNsdlInterface::received_from_server_callback - incoming msg type:%d", coap_header->msg_type);
+        if (coap_header->uri_path_ptr) {
+            tr_debug("M2MNsdlInterface::received_from_server_callback - incoming msg uri:%.*s", coap_header->uri_path_len, coap_header->uri_path_ptr);
+        }
+    }
     tr_debug("M2MNsdlInterface::received_from_server_callback - registration id:%" PRIu16, nsdl_handle->register_msg_id);
     tr_debug("M2MNsdlInterface::received_from_server_callback - unregistration id:%" PRIu16, nsdl_handle->unregister_msg_id);
     tr_debug("M2MNsdlInterface::received_from_server_callback - update registration id:%" PRIu16, nsdl_handle->update_register_msg_id);
@@ -588,6 +595,9 @@ uint8_t M2MNsdlInterface::resource_callback(struct nsdl_s */*nsdl_handle*/,
     String resource_name = coap_to_string(received_coap_header->uri_path_ptr,
                                           received_coap_header->uri_path_len);
     tr_debug("M2MNsdlInterface::resource_callback() - resource_name %s", resource_name.c_str());
+    tr_debug("M2MNsdlInterface::resource_callback() - msg id:%" PRIu16, received_coap_header->msg_id);
+    tr_debug("M2MNsdlInterface::resource_callback() - msg code:%d", received_coap_header->msg_code);
+    tr_debug("M2MNsdlInterface::resource_callback() - msg type:%d", received_coap_header->msg_type);
     bool execute_value_updated = false;
     M2MBase* base = find_resource(resource_name);
     if(base) {
