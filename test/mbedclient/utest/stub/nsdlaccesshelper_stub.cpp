@@ -19,7 +19,7 @@ bool nsdlaccesshelper_stub::bool_value;
 void* nsdlaccesshelper_stub::void_value;
 uint8_t nsdlaccesshelper_stub::int_value;
 
-M2MNsdlInterfaceList __nsdl_interface_list;
+M2MNsdlInterfaceList *__nsdl_interface_list;
 M2MConnectionHandler *__connection_handler = NULL;
 #ifdef USE_LINUX
 M2MTimerImpl  *__timer_impl = NULL;
@@ -79,5 +79,13 @@ void __mutex_claim()
 }
 
 void __mutex_release()
+{
+}
+
+void add_interface(M2MNsdlInterface* interface)
+{
+}
+
+void remove_interface(M2MNsdlInterface* interface)
 {
 }

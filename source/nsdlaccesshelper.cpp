@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-M2MNsdlInterfaceList __nsdl_interface_list;
+M2MNsdlInterfaceList *__nsdl_interface_list = NULL;
 
 // callback function for NSDL library to call into
 
@@ -107,16 +107,48 @@ void __socket_free(void * context, void * ptr)
     free(ptr);
 }
 
+void add_interface(M2MNsdlInterface* interface)
+{
+    if (!__nsdl_interface_list) {
+        __nsdl_interface_list = new M2MNsdlInterfaceList();
+    }
+    if (interface && __nsdl_interface_list) {
+        __nsdl_interface_list->push_back(interface);
+    }
+}
+
+void remove_interface(M2MNsdlInterface* interface)
+{
+    if (interface && __nsdl_interface_list) {
+        M2MNsdlInterfaceList::const_iterator it;
+        it = __nsdl_interface_list->begin();
+        int index = 0;
+        for (; it!=__nsdl_interface_list->end(); it++) {
+            if ((*it) == interface) {
+                __nsdl_interface_list->erase(index);
+                break;
+            }
+            index++;
+        }
+        if (__nsdl_interface_list->empty()) {
+            delete __nsdl_interface_list;
+            __nsdl_interface_list = NULL;
+        }
+    }
+}
+
 M2MNsdlInterface* get_interface(struct nsdl_s* nsdl_handle)
 {
-    M2MNsdlInterfaceList::const_iterator it;
-    it = __nsdl_interface_list.begin();
     M2MNsdlInterface* obj = NULL;
-    if (nsdl_handle) {
-        for (; it!=__nsdl_interface_list.end(); it++) {
-            if ((*it)->get_nsdl_handle() == nsdl_handle) {
-                obj = *it;
-                break;
+    if (__nsdl_interface_list) {
+        M2MNsdlInterfaceList::const_iterator it;
+        it = __nsdl_interface_list->begin();
+        if (nsdl_handle) {
+            for (; it!=__nsdl_interface_list->end(); it++) {
+                if ((*it)->get_nsdl_handle() == nsdl_handle) {
+                    obj = *it;
+                    break;
+                }
             }
         }
     }

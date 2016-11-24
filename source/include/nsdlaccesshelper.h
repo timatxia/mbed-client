@@ -19,7 +19,7 @@
 #include "include/m2mnsdlinterface.h"
 
 typedef Vector<M2MNsdlInterface  *> M2MNsdlInterfaceList;
-extern M2MNsdlInterfaceList __nsdl_interface_list;
+extern M2MNsdlInterfaceList *__nsdl_interface_list;
 extern M2MConnectionHandler *__connection_handler;
 
 #ifdef __cplusplus
@@ -44,6 +44,8 @@ uint8_t __nsdl_c_received_from_server(struct nsdl_s * nsdl_handle,
 void *__socket_malloc( void * context, size_t size);
 void __socket_free(void * context, void * ptr);
 
+void add_interface(M2MNsdlInterface* interface);
+void remove_interface(M2MNsdlInterface* interface);
 M2MNsdlInterface* get_interface(struct nsdl_s* nsdl_handle);
 
 void __mutex_claim();
