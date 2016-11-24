@@ -109,16 +109,19 @@ void __socket_free(void * context, void * ptr)
 
 void add_interface(M2MNsdlInterface* interface)
 {
+    __mutex_claim();
     if (!__nsdl_interface_list) {
         __nsdl_interface_list = new M2MNsdlInterfaceList();
     }
     if (interface && __nsdl_interface_list) {
         __nsdl_interface_list->push_back(interface);
     }
+    __mutex_release();
 }
 
 void remove_interface(M2MNsdlInterface* interface)
 {
+    __mutex_claim();
     if (interface && __nsdl_interface_list) {
         M2MNsdlInterfaceList::const_iterator it;
         it = __nsdl_interface_list->begin();
@@ -135,11 +138,13 @@ void remove_interface(M2MNsdlInterface* interface)
             __nsdl_interface_list = NULL;
         }
     }
+    __mutex_release();
 }
 
 M2MNsdlInterface* get_interface(struct nsdl_s* nsdl_handle)
 {
     M2MNsdlInterface* obj = NULL;
+    __mutex_claim();
     if (__nsdl_interface_list) {
         M2MNsdlInterfaceList::const_iterator it;
         it = __nsdl_interface_list->begin();
@@ -152,6 +157,7 @@ M2MNsdlInterface* get_interface(struct nsdl_s* nsdl_handle)
             }
         }
     }
+    __mutex_release();
     return obj;
 }
 
