@@ -22,6 +22,7 @@
 #include "mbed-client/m2mreportobserver.h"
 #include "mbed-client/functionpointer.h"
 #include "mbed-client/m2mstringbuffer.h"
+#include "include/nsdllinker.h"
 
 //FORWARD DECLARATION
 struct sn_coap_hdr_;
@@ -114,6 +115,16 @@ public:
         MAX_PATH_SIZE_4 = (MAX_NAME_SIZE + MAX_INSTANCE_SIZE + 1 + 1),
     };
 
+    typedef struct lwm2m_parameters {
+        //add multiple_instances
+        uint32_t            max_age;
+        uint32_t            instance_id;
+        int32_t             name_id;
+        char*               name; //for backwards compability
+        BaseType            base_type;
+        sn_nsdl_dynamic_resource_parameters_s *dynamic_resource_params;
+    } lwm2m_parameters_s;
+
 protected:
 
     // Prevents the use of default constructor.
@@ -133,6 +144,9 @@ protected:
      */
     M2MBase(const String &name,
             M2MBase::Mode mode);
+
+    M2MBase(const lwm2m_parameters_s* s);
+
 public:
 
     /**
@@ -305,7 +319,6 @@ public:
      */
     virtual uint32_t max_age() const;
 
-
     /**
      * \brief Parses the received query for the notification
      * attribute.
@@ -410,6 +423,12 @@ public:
      */
     virtual void execute_value_updated(const String& name);
 
+    /**
+     * @brief Returns nsdl resource.
+     * @return nsdl resource structure.
+     */
+    sn_nsdl_static_resource_parameters_s* get_nsdl_resource();
+
 protected : // from M2MReportObserver
 
     virtual void observation_to_be_sent(m2m::Vector<uint16_t> changed_instance_ids,
@@ -485,30 +504,24 @@ private:
 
     static bool is_integer(const String &value);
 
-private:
+    char* stringdup(const char* s);
 
-    M2MReportHandler           *_report_handler;
-    M2MObservationHandler      *_observation_handler;
-    String                      _name;
-    String                      _resource_type;
-    String                      _interface_description;
-    String                      _uri_path;
-    int32_t                     _name_id;
-    uint32_t                    _max_age;
-    uint16_t                    _instance_id;
-    uint16_t                    _observation_number;
+    void free_resources();
+
+    bool is_static() const;
+
+private:
+    lwm2m_parameters_s          *_sn_resource;
+    M2MReportHandler            *_report_handler;
+    M2MObservationHandler       *_observation_handler;
     uint8_t                     *_token;
-    uint8_t                     _token_length;
-    uint8_t                     _coap_content_type;
-    M2MBase::Operation          _operation;
-    M2MBase::Mode               _mode;
-    M2MBase::BaseType           _base_type;
-    M2MBase::Observation        _observation_level;
-    bool                        _observable;
-    bool                        _register_uri;
-    bool                        _is_under_observation;
-    value_updated_callback      _value_updated_callback;
     FP1<void, const char*>      *_function_pointer;
+    value_updated_callback      _value_updated_callback;
+    uint16_t                    _observation_number;
+    uint8_t                     _token_length;
+    M2MBase::Observation        _observation_level;
+    bool                        _is_static;
+    bool                        _is_under_observation;
 
 friend class Test_M2MBase;
 
